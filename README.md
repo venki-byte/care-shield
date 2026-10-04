@@ -4,7 +4,7 @@
 
 > 🚀 **Live app:** **[https://care-shield-awdfuejzzvdctwjjtkgeup.streamlit.app/](https://care-shield-awdfuejzzvdctwjjtkgeup.streamlit.app/)**
 
-> Scan a medical product, and in seconds know whether it is **genuine**, **legally priced**, and **where to buy it cheaper** — powered by **SerpApi**.
+> **Before you pay:** is it the right product, is the price fair, and where is it cheapest? Scan a medical device or medicine and get live market prices, counterfeit/recall checks and the legal MRP ceiling — powered by **SerpApi**.
 
 Built for the **SerpApi India Hackathon 2026** · Track: **Knowledge & Public Interest** (accessibility, consumer protection, news) · also relevant to *Commerce & Market Intelligence*.
 
@@ -17,11 +17,13 @@ Built for the **SerpApi India Hackathon 2026** · Track: **Knowledge & Public In
 
 ## The problem
 
-In India, elderly patients and their families routinely buy BP monitors, oximeters, glucometers and braces from pharmacies where they cannot tell if:
+Families buying BP monitors, oximeters, glucometers, braces or OTC medicines can't tell:
 
-- the shop is **charging above the printed MRP** (illegal under *Legal Metrology Act 2009, §36*),
-- the box is a **counterfeit / spurious** product (knock-off spellings, malformed CDSCO licence numbers),
-- a **cheaper legitimate option** exists (online sellers, government *Jan Aushadhi* generic stores).
+- **Is this the fair price?** Pharmacies sell at the printed MRP, which is only a *legal ceiling* — the same product is often 20–40 % cheaper online or at Jan Aushadhi stores. Nobody checks.
+- **Is it genuine?** Counterfeit / spurious devices carry knock-off spellings and malformed CDSCO licence numbers, and recalls are hard to find.
+- **Where is it cheapest?** Comparing sellers by hand, in a shop, on a small phone, is unrealistic — especially for seniors.
+
+(Charging *above* MRP is illegal under *Legal Metrology Act 2009 §36*, so Care-Shield checks that too, but the everyday saving comes from the market comparison.)
 
 ## What Care-Shield does
 

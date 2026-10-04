@@ -442,8 +442,9 @@ if demo_mode_toggle:
 st.markdown("""
 <div class="cs-hero">
   <h1>🛡️ Care-Shield</h1>
-  <p>Algorithmic defense against counterfeit medical packaging, illegal price gouging,
-     and spurious devices — zero hallucination, built for Indian senior citizens.</p>
+  <p><b>Before you pay:</b> is it the right product, is the price fair, and where is it cheapest?
+     Scan any medical device or medicine — live SerpApi prices, counterfeit &amp; recall checks,
+     and the legal MRP ceiling. Built for Indian families and senior citizens.</p>
   <span class="badge">CDSCO MDR 2017</span>
   <span class="badge">Legal Metrology Act 2009</span>
   <span class="badge">Zero Hallucination</span>
@@ -801,14 +802,25 @@ if scorecard:
         cheapest_ = min((m.price for m in pr_.benchmark_merchants if m.price >= 0.4 * (pr_.online_median or 0)), default=None)
         sv = compute_savings(pr_.scanned_purchase_price, scorecard.ocr_result.printed_mrp_inr,
                              pr_.online_median, cheapest_)
-        if sv["illegal_overcharge"] or sv["save_vs_cheapest"]:
-            lines = []
-            if sv["illegal_overcharge"]:
-                lines.append(f"🚨 Charged <b>₹{sv['illegal_overcharge']:,.0f} above the legal MRP</b> — you can demand a refund of the excess.")
-            if sv["save_vs_cheapest"]:
-                lines.append(f"💰 You could save <b>₹{sv['save_vs_cheapest']:,.0f} ({sv['save_pct']}%)</b> buying from the cheapest verified online seller.")
-            st.markdown(
-                '<div class="cs-savings">' + "<br/>".join(lines) + "</div>", unsafe_allow_html=True)
+        mrp_ = scorecard.ocr_result.printed_mrp_inr
+        gap_pct = None
+        if mrp_ and pr_.online_median and pr_.online_median < 0.92 * mrp_:
+            gap_pct = round(100 * (mrp_ - pr_.online_median) / mrp_)
+        lines = []
+        if sv["save_vs_cheapest"]:
+            lines.append(f"💰 You could save <b>₹{sv['save_vs_cheapest']:,.0f} ({sv['save_pct']}%)</b> by buying from the cheapest relevant seller found online.")
+        if gap_pct:
+            lines.append(f"🏷️ <b>MRP is a legal ceiling, not the fair price</b> — the online median (₹{pr_.online_median:,.0f}) is <b>{gap_pct}% below</b> the printed MRP (₹{mrp_:,.0f}).")
+        if sv["illegal_overcharge"]:
+            lines.append(f"🚨 Charged <b>₹{sv['illegal_overcharge']:,.0f} above the legal MRP</b> — you can demand a refund of the excess.")
+        elif mrp_ and pr_.scanned_purchase_price <= mrp_ and lines:
+            lines.append("✅ The store price is within the legal MRP (legal) — but compare before paying.")
+        if lines:
+            st.markdown('<div class="cs-savings">' + "<br/>".join(lines) + "</div>", unsafe_allow_html=True)
+        if not pr_.benchmark_merchants and not scorecard.is_demo_replay:
+            st.info("No reliable online listings matched this product, so no market comparison is shown "
+                    "(we never use unrelated products as a benchmark). Try a clearer photo or edit the "
+                    "product title / brand above.", icon="ℹ️")
         import pandas as pd
         rows_ = [("Store asking price", pr_.scanned_purchase_price)]
         if scorecard.ocr_result.printed_mrp_inr:

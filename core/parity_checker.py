@@ -75,6 +75,37 @@ def get_demo_benchmark_merchants(product_title: str) -> List[BenchmarkMerchant]:
         ]
 
 
+
+_FLUFF = {
+    "signature", "series", "professional", "premium", "original", "genuine", "new", "model", "digital",
+    "advanced", "classic", "deluxe", "ip", "usa", "pro", "plus", "with", "for", "and", "the",
+    "mrp", "batch", "inclusive", "taxes", "of", "all", "in", "pack", "set",
+}
+
+
+def build_shopping_query(brand: str, title: str) -> str:
+    """Short, precise Shopping query: brand + up to 3 core product words (no duplicates, no marketing fluff).
+
+    Long titles ("Signature Series ...") make Google Shopping drift to unrelated products
+    (smartwatches for an oximeter), so we keep only the product nouns.
+    """
+    brand = (brand or "").strip()
+    if brand.lower().startswith(("unknown", "not provided")):
+        brand = ""
+    brand_tokens = {t.lower().strip(".") for t in re.findall(r"[\w.&-]+", brand)}
+    core = []
+    for tok in re.findall(r"[\w.&-]+", title or ""):
+        low = tok.lower().strip(".")
+        if low in brand_tokens or low in _FLUFF or re.fullmatch(r"\d+\s*(mg|ml|g|mcg)", low):
+            continue
+        if low.startswith("rs") or low in {"inr"}:
+            break
+        core.append(tok)
+        if len(core) == 3:
+            break
+    return f"{brand} {' '.join(core)}".strip() or (title or "").strip()
+
+
 def check_price_parity(
     product_title: str,
     detected_brand: str,
@@ -107,7 +138,7 @@ def check_price_parity(
     if active_key and not is_demo_mode:
         try:
             from serpapi import GoogleSearch
-            query = f"{detected_brand} {product_title}".strip()
+            query = build_shopping_query(detected_brand, product_title)
             params = {
                 "engine": "google_shopping",
                 "q": query,
@@ -172,7 +203,7 @@ def check_price_parity(
     # SerpApi unavailable / empty -> Gemini grounded Google Search fallback (real web sources only)
     if not benchmarks and not is_demo_mode and config.GEMINI_API_KEY:
         from core.gemini_fallback import gemini_price_benchmark
-        gem = gemini_price_benchmark(f"{detected_brand} {product_title}".strip(), config.GEMINI_API_KEY)
+        gem = gemini_price_benchmark(build_shopping_query(detected_brand, product_title), config.GEMINI_API_KEY)
         if gem:
             benchmarks = gem
             is_live = True

@@ -15,7 +15,32 @@ from schemas import AuditScorecard
 logger = logging.getLogger(__name__)
 
 
+def _saving_amount(scorecard: AuditScorecard) -> int:
+    """Rupees saved vs the cheapest plausible online listing (0 when there is no reliable benchmark)."""
+    pr = scorecard.parity_result
+    if not pr or not pr.scanned_purchase_price or not pr.benchmark_merchants or not pr.online_median:
+        return 0
+    cheapest = min((m.price for m in pr.benchmark_merchants if m.price >= 0.4 * pr.online_median), default=None)
+    if cheapest and pr.scanned_purchase_price > cheapest * 1.05:
+        return int(pr.scanned_purchase_price - cheapest)
+    return 0
+
+
 def build_audio_script(scorecard: AuditScorecard, language: str = "en") -> str:
+    """Spoken verdict (price comparison first, legal MRP check second)."""
+    base = _build_base_script(scorecard, language)
+    save = _saving_amount(scorecard)
+    if not save or scorecard.is_aborted:
+        return base
+    extra = {
+        "en": f" You could save about {save} Rupees by buying from the cheapest online seller.",
+        "hi": f" सबसे सस्ते ऑनलाइन विक्रेता से खरीदकर आप लगभग {save} रुपये बचा सकते हैं।",
+        "ta": f" மலிவான ஆன்லைன் விற்பனையாளரிடம் வாங்கினால் சுமார் {save} ரூபாய் சேமிக்கலாம்.",
+    }
+    return base + extra.get(language, extra["en"])
+
+
+def _build_base_script(scorecard: AuditScorecard, language: str = "en") -> str:
     """Compose clear, legally defensible spoken verdict script for senior accessibility."""
     price = scorecard.parity_result.scanned_purchase_price if scorecard.parity_result else 0.0
     mrp = scorecard.ocr_result.printed_mrp_inr
