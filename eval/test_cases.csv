@@ -1,0 +1,6 @@
+case_id,product_title,detected_brand,printed_mrp,store_asking_price,raw_text,expected_category,expected_min_score,expected_max_score,should_abort,expect_overcharge
+authentic_oximeter,Dr Trust Signature Series Finger Tip Pulse Oximeter 506,Dr Trust,1999.0,1630.0,Dr Trust USA Signature Series Pulse Oximeter Model 506. Mfg Lic No: MFG/MD/2021/000123. Batch No: DT-2024-OX982. M.R.P. Rs. 1999.00.,otc_device,80,100,False,False
+counterfeit_knee_brace,Tynor Knee Suport Hinged Neo,Tynor,600.0,1450.0,Tynor Knee Suport Hinged Neo (Knockoff). Lic: MD-LIC-9988-FAKE. B.No: TYN-SPURIOUS-99. M.R.P. Rs. 600.00.,otc_device,0,59,False,True
+cosmetic_serum,Melactis Pigment Corrector Serum 30ml,Melactis,850.0,799.0,Melactis Advanced Pigment Corrector Skincare Serum 30ml. Batch: ML-2024-01. M.R.P. Rs. 850.00. Cosmetic Formulation.,cosmetic,75,100,False,False
+prescription_amoxicillin,Amoxicillin 500mg Capsules IP,Cipla,120.0,120.0,Amoxicillin Capsules IP 500mg. Schedule H Prescription Drug. Warning: To be sold by retail on the prescription of a Registered Medical Practitioner only.,prescription_medicine,0,0,True,False
+bp_monitor_overcharge,Omron Digital Blood Pressure Monitor HEM-7120,Omron,2400.0,2850.0,Omron HEM-7120 Digital Automatic Blood Pressure Monitor. Mfg Lic: MFG/MD/2020/00432. M.R.P. Rs. 2400.00.,otc_device,75,85,False,True

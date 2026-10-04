@@ -1,0 +1,124 @@
+{
+  "trust_score": 32,
+  "verdict": "Illegal MRP Overcharge Flagged",
+  "sub_scores": {
+    "text_integrity": 24.5,
+    "text_max": 35.0,
+    "regulatory": 5.0,
+    "regulatory_max": 25.0,
+    "regulatory_status": "Malformed Syntax",
+    "pricing_fairness": 0.0,
+    "pricing_max": 20.0,
+    "safety_intel": 3.0,
+    "safety_max": 20.0,
+    "max_available_points": 100.0,
+    "total_earned_points": 32.5
+  },
+  "evidence_list": [
+    "Text Integrity: 24.5/35.0 (Exact token match: 70% confidence).",
+    "Typo/knockoff token detected: 'suport' (canonical: 'support', exact token match: 76%).",
+    "Regulatory License: 5.0/25.0 (Malformed license syntax flagged under CDSCO rules).",
+    "Pricing Fairness: 0.0/20.0 (Legal Metrology Violation: Store asking price ₹1450.00 exceeds printed MRP ₹600.00).",
+    "Safety Intel: 3.0/20.0 (Adversarial risk conviction: 0.85).",
+    "Threat Notice: [DEMO REPLAY FIXTURE] CDSCO State Drug Control Advisory: Spurious batches of orthopedic supports bearing fake license numbers seized in wholesale market raids.",
+    "Threat Notice: [DEMO REPLAY FIXTURE] Consumer Safety Warning: Unauthorized imitation products circulating without verified biomechanical load testing.",
+    "Geolocation Remediation: Retrieved 2 verified physical pharmacies."
+  ],
+  "ocr_result": {
+    "product_title": "Tynor Knee Suport Hinged Neo",
+    "detected_brand": "Tynor",
+    "printed_mrp_inr": 600.0,
+    "batch_number": "TYN-SPURIOUS-99",
+    "cdsco_license_raw": "MD-LIC-9988-FAKE",
+    "is_license_format_valid": false,
+    "active_components": "Neoprene sleeve, metal hinges",
+    "raw_ocr_corpus": "Tynor Knee Suport Hinged Neo (Knockoff). Lic: MD-LIC-9988-FAKE. B.No: TYN-SPURIOUS-99. M.R.P. Rs. 600.00. Unverified distributor packaging.",
+    "ocr_engine_used": "Preset Benchmark Fixture",
+    "crop_applied": false
+  },
+  "parity_result": {
+    "online_prices": [599.0, 620.0, 635.0, 650.0],
+    "online_median": 627.5,
+    "iqr_filtered_min": 545.0,
+    "iqr_filtered_max": 705.0,
+    "scanned_purchase_price": 1450.0,
+    "is_above_printed_mrp": true,
+    "mrp_audit_skipped": false,
+    "markup_percent": 131.08,
+    "benchmark_merchants": [
+      {
+        "name": "Tata 1mg [Demo Ref]",
+        "price": 620.0,
+        "link": "https://www.1mg.com",
+        "extracted_title": "Tynor Functional Knee Support Hinged"
+      },
+      {
+        "name": "Apollo Pharmacy [Demo Ref]",
+        "price": 650.0,
+        "link": "https://www.apollopharmacy.in",
+        "extracted_title": "Tynor Knee Support Hinged Neoprene"
+      },
+      {
+        "name": "Netmeds [Demo Ref]",
+        "price": 635.0,
+        "link": "https://www.netmeds.com",
+        "extracted_title": "Tynor Hinged Knee Support Neo"
+      },
+      {
+        "name": "Amazon India [Demo Ref]",
+        "price": 599.0,
+        "link": "https://www.amazon.in",
+        "extracted_title": "Tynor Knee Support Hinged Neo Premium"
+      }
+    ],
+    "is_live_query": false,
+    "api_warning": "Demo Replay Mode: Using benchmark fixtures."
+  },
+  "intel_result": {
+    "has_active_recall": true,
+    "risk_factor": 0.85,
+    "evidence_snippets": [
+      "[DEMO REPLAY FIXTURE] CDSCO State Drug Control Advisory: Spurious batches of orthopedic supports bearing fake license numbers seized in wholesale market raids.",
+      "[DEMO REPLAY FIXTURE] Consumer Safety Warning: Unauthorized imitation products circulating without verified biomechanical load testing."
+    ],
+    "is_live_query": false,
+    "api_warning": "Demo Replay Mode: Using pre-recorded threat intelligence fixture."
+  },
+  "fallback_pharmacies": [
+    {
+      "name": "SUKHAM HEALTHCARE [Demo Fixture]",
+      "rating": 5.0,
+      "review_count": 455,
+      "formatted_address": "12th Main Rd, Anna Nagar West, Chennai, Tamil Nadu 600040",
+      "is_open": true,
+      "directions_url": "https://www.google.com/maps/dir/?api=1&destination=13.0878,80.2085&destination_place_id=ChIJkUY7CxxkUjoR0xaCzDDYumU",
+      "place_id": "ChIJkUY7CxxkUjoR0xaCzDDYumU",
+      "latitude": 13.0878,
+      "longitude": 80.2085,
+      "is_live_lookup": false
+    },
+    {
+      "name": "Surgical Avenue [Demo Fixture]",
+      "rating": 4.9,
+      "review_count": 538,
+      "formatted_address": "Mount Road, Chennai, Tamil Nadu 600002",
+      "is_open": true,
+      "directions_url": "https://www.google.com/maps/dir/?api=1&destination=13.0645,80.2678&destination_place_id=ChIJ_8GKMeVlUjoR7J8ziOp9owQ",
+      "place_id": "ChIJ_8GKMeVlUjoR7J8ziOp9owQ",
+      "latitude": 13.0645,
+      "longitude": 80.2678,
+      "is_live_lookup": false
+    }
+  ],
+  "is_demo_replay": true,
+  "pipeline_telemetry": {
+    "is_demo_mode": true,
+    "ocr_engine": "Preset Benchmark Fixture",
+    "crop_applied": false,
+    "score_base_denominator": 100.0,
+    "score_earned_points": 32.5,
+    "shopping_live": false,
+    "intel_live": false,
+    "maps_live": false
+  }
+}

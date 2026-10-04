@@ -1,0 +1,101 @@
+{
+  "trust_score": 100,
+  "verdict": "No red flags found. Formatting consistent with specifications.",
+  "sub_scores": {
+    "text_integrity": 35.0,
+    "text_max": 35.0,
+    "regulatory": 25.0,
+    "regulatory_max": 25.0,
+    "regulatory_status": "Compliant Format",
+    "pricing_fairness": 20.0,
+    "pricing_max": 20.0,
+    "safety_intel": 20.0,
+    "safety_max": 20.0,
+    "max_available_points": 100.0,
+    "total_earned_points": 100.0
+  },
+  "evidence_list": [
+    "Text Integrity: 35.0/35.0 (Exact token match: 100% confidence).",
+    "Regulatory License: 25.0/25.0 (License syntax conforms to CDSCO MDR specification; government database record unconfirmed).",
+    "Pricing Fairness: 20.0/20.0 (Store price markup +3.2% is within 25.0% tolerance of online median ₹1580.00).",
+    "Safety Intel: 20.0/20.0 (No active CDSCO recall or spurious notices identified).",
+    "High text fidelity match (100%) with official packaging specifications."
+  ],
+  "ocr_result": {
+    "product_title": "Dr Trust Signature Series Finger Tip Pulse Oximeter 506",
+    "detected_brand": "Dr Trust",
+    "printed_mrp_inr": 1999.0,
+    "batch_number": "DT-2024-OX982",
+    "cdsco_license_raw": "MFG/MD/2021/000123",
+    "is_license_format_valid": true,
+    "active_components": "Photoelectric sensor, OLED display, SpO2 & PR algorithm",
+    "raw_ocr_corpus": "Dr Trust USA Signature Series Pulse Oximeter Model 506. Mfg Lic No: MFG/MD/2021/000123. Batch No: DT-2024-OX982. M.R.P. Rs. 1,999.00 (Incl. of all taxes). ISO 13485:2016 Certified. Distributed by Nureca Ltd.",
+    "ocr_engine_used": "Preset Benchmark Fixture",
+    "crop_applied": false
+  },
+  "parity_result": {
+    "online_prices": [1499.0, 1549.0, 1580.0, 1599.0, 1620.0],
+    "online_median": 1580.0,
+    "iqr_filtered_min": 1380.0,
+    "iqr_filtered_max": 1720.0,
+    "scanned_purchase_price": 1630.0,
+    "is_above_printed_mrp": false,
+    "mrp_audit_skipped": false,
+    "markup_percent": 3.16,
+    "benchmark_merchants": [
+      {
+        "name": "Tata 1mg [Demo Ref]",
+        "price": 1549.0,
+        "link": "https://www.1mg.com",
+        "extracted_title": "Dr Trust Signature Series Pulse Oximeter"
+      },
+      {
+        "name": "Apollo Pharmacy [Demo Ref]",
+        "price": 1599.0,
+        "link": "https://www.apollopharmacy.in",
+        "extracted_title": "Dr Trust USA Finger Tip Pulse Oximeter 506"
+      },
+      {
+        "name": "Netmeds [Demo Ref]",
+        "price": 1620.0,
+        "link": "https://www.netmeds.com",
+        "extracted_title": "Dr Trust Oximeter 506 Professional"
+      },
+      {
+        "name": "Amazon India [Demo Ref]",
+        "price": 1499.0,
+        "link": "https://www.amazon.in",
+        "extracted_title": "Dr Trust USA Pulse Oximeter Signature Series"
+      },
+      {
+        "name": "Pharmeasy [Demo Ref]",
+        "price": 1580.0,
+        "link": "https://www.pharmeasy.in",
+        "extracted_title": "Dr Trust Pulse Oximeter"
+      }
+    ],
+    "is_live_query": false,
+    "api_warning": "Demo Replay Mode: Using benchmark fixtures."
+  },
+  "intel_result": {
+    "has_active_recall": false,
+    "risk_factor": 0.0,
+    "evidence_snippets": [
+      "[DEMO REPLAY FIXTURE] No active CDSCO alerts or recall notices for verified brand specification."
+    ],
+    "is_live_query": false,
+    "api_warning": "Demo Replay Mode: Using pre-recorded threat intelligence fixture."
+  },
+  "fallback_pharmacies": [],
+  "is_demo_replay": true,
+  "pipeline_telemetry": {
+    "is_demo_mode": true,
+    "ocr_engine": "Preset Benchmark Fixture",
+    "crop_applied": false,
+    "score_base_denominator": 100.0,
+    "score_earned_points": 100.0,
+    "shopping_live": false,
+    "intel_live": false,
+    "maps_live": false
+  }
+}

@@ -1,0 +1,32 @@
+# ── Secrets (never commit) ──
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# ── Private notes ──
+readme_ai.txt
+plan.md
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+*.log
+
+# ── Local artefacts: screenshots, personal photos, ad-hoc scripts ──
+ui_*.png
+sample_image/
+live_check.py
+test_gemini.py
+test_ui_playwright.py
+eval/eval_results.json
+
+# ── OS / editor ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
