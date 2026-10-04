@@ -102,6 +102,8 @@ def compute_license_format_subscore(
     Returns:
         (earned_points, max_points, status, output_text)
     """
+    if product_category == "otc_medicine":
+        return None, 0.0, "na", "License format not evaluated: medicines are licensed under the Drugs & Cosmetics Act, not CDSCO MDR 2017"
     if product_category == "cosmetic":
         return None, 0.0, "na", "License format not evaluated: Cosmetics are exempt from CDSCO Medical Device Rules"
 
@@ -224,7 +226,9 @@ def compute_audit_scorecard(
     raw_lic = ocr_result.cdsco_license_raw
     cat = getattr(ocr_result, "product_category", "otc_device")
     r_earned, r_max, r_stat, r_msg = compute_license_format_subscore(raw_lic, product_category=cat)
-    if cat == "cosmetic":
+    if cat == "otc_medicine":
+        evidence.append("Regulatory License: N/A (Medicines follow the Drugs & Cosmetics Act, not CDSCO MDR 2017; excluded from score denominator base).")
+    elif cat == "cosmetic":
         evidence.append("Regulatory License: N/A (Cosmetics are exempt from CDSCO Medical Device Rules; excluded from score denominator base).")
     elif r_stat == "na":
         evidence.append("Regulatory License: N/A (Not provided / not required; excluded from score denominator base).")

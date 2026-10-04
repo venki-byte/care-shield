@@ -169,6 +169,15 @@ def check_price_parity(
         # Live mode without API key: Do not fake data!
         warning = "Live Google Shopping skipped: SERPAPI_API_KEY is not configured in .env or sidebar. Online median benchmark is unavailable without API credentials."
 
+    # SerpApi unavailable / empty -> Gemini grounded Google Search fallback (real web sources only)
+    if not benchmarks and not is_demo_mode and config.GEMINI_API_KEY:
+        from core.gemini_fallback import gemini_price_benchmark
+        gem = gemini_price_benchmark(f"{detected_brand} {product_title}".strip(), config.GEMINI_API_KEY)
+        if gem:
+            benchmarks = gem
+            is_live = True
+            warning = ((warning + " ") if warning else "") + "Switched to Gemini grounded Google Search (SerpApi fallback)."
+
     if benchmarks:
         all_prices = [b.price for b in benchmarks]
         filtered_prices, lower_bound, upper_bound = filter_iqr_outliers(all_prices)

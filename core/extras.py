@@ -51,13 +51,14 @@ def find_jan_aushadhi_kendras(lat: float, lng: float, city: str, api_key: Option
 
 def fetch_brand_news(brand: str, title: str, api_key: Optional[str]) -> List[Dict[str, str]]:
     """Latest recall / spurious headlines via SerpApi Google News. Empty list when unavailable."""
-    if not api_key:
-        return []
     subject = (brand or "").strip()
     if not subject or subject.lower().startswith(("not provided", "unknown")):
         subject = " ".join((title or "").split()[:3])
     if not subject:
         return []
+    if not api_key:
+        from core.gemini_fallback import gemini_news
+        return gemini_news(subject, config.GEMINI_API_KEY)
     res = _search({
         "engine": "google_news",
         "q": f'"{subject}" (recall OR spurious OR counterfeit OR CDSCO OR overcharging)',
@@ -74,7 +75,11 @@ def fetch_brand_news(brand: str, title: str, api_key: Optional[str]) -> List[Dic
             "source": (src.get("name") if isinstance(src, dict) else src) or "News",
             "date": n.get("date", ""),
         })
-    return [n for n in out if n["title"] and n["link"]]
+    out = [n for n in out if n["title"] and n["link"]]
+    if not out and config.GEMINI_API_KEY:  # SerpApi empty/failed -> Gemini grounded fallback
+        from core.gemini_fallback import gemini_news
+        out = gemini_news(subject, config.GEMINI_API_KEY)
+    return out
 
 
 def compute_savings(store_price: Optional[float], printed_mrp: Optional[float],

@@ -68,6 +68,19 @@ def audit_safety_intel(
                 api_warning="Demo Replay Mode: Using pre-recorded threat intelligence fixture."
             )
 
+    # 2a. No SerpApi key but Gemini available -> grounded Google Search fallback
+    if not active_key and config.GEMINI_API_KEY:
+        from core.gemini_fallback import gemini_safety_intel
+        snips, alert = gemini_safety_intel(detected_brand, product_title, config.GEMINI_API_KEY)
+        return SafetyIntelResult(
+            has_active_recall=alert,
+            risk_factor=min(1.0, 0.4 + 0.2 * len(snips)) if alert else 0.0,
+            evidence_snippets=[f"[GEMINI SEARCH] {x}" for x in snips] if alert else
+                ["Gemini grounded Google Search: no active CDSCO warnings or counterfeit seizure reports found."],
+            is_live_query=True,
+            api_warning="SerpApi not configured - used Gemini grounded Google Search fallback."
+        )
+
     # 2. Live Mode WITHOUT API Key: Honest warning, no fake data!
     if not active_key:
         return SafetyIntelResult(
@@ -130,6 +143,18 @@ def audit_safety_intel(
     except Exception as e:
         logger.error(f"Safety intel live search failed: {e}")
         warning = f"Live search failed: {e}"
+
+    if matched_conviction_count == 0 and warning and config.GEMINI_API_KEY:
+        from core.gemini_fallback import gemini_safety_intel
+        snips, alert = gemini_safety_intel(detected_brand, product_title, config.GEMINI_API_KEY)
+        return SafetyIntelResult(
+            has_active_recall=alert,
+            risk_factor=min(1.0, 0.4 + 0.2 * len(snips)) if alert else 0.0,
+            evidence_snippets=[f"[GEMINI SEARCH] {x}" for x in snips] if alert else
+                ["Gemini grounded Google Search: no active CDSCO warnings or counterfeit seizure reports found."],
+            is_live_query=True,
+            api_warning=f"{warning} Switched to Gemini grounded Google Search (SerpApi fallback)."
+        )
 
     if matched_conviction_count == 0:
         return SafetyIntelResult(

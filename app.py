@@ -478,7 +478,7 @@ uploaded_image = None
 manual_text    = None
 lens_url_input = ""
 
-col_input, col_lens = st.columns([3, 2], gap="large")
+col_input = st.container()
 
 with col_input:
     if sample_preset_arg == "authentic_oximeter":
@@ -511,18 +511,10 @@ with col_input:
                 height=100
             )
 
-with col_lens:
-    with st.container(border=True):
-        st.markdown("#### 🔭 Google Lens (Optional)")
-        lens_url_input = st.text_input(
-            "Public image URL for Lens analysis",
-            placeholder="https://example.com/product.jpg",
-            help="SerpApi Google Lens needs a public HTTPS URL to run visual entity matching alongside local OCR."
-        )
-        st.caption(
-            "🔒 **Privacy ROI Cropping is always active** — "
-            "background faces and unrelated text are auto-filtered before any network upload."
-        )
+st.caption(
+    "🔒 **Privacy ROI cropping is always active** — background faces and unrelated text are "
+    "filtered out before any image is analysed. Gemini Vision reads the packaging; typed text works too."
+)
 
 # ── Scan button ──
 scan_btn_label = (
@@ -546,7 +538,7 @@ if scan_packaging or needs_auto_ingest:
             sample_preset=sample_preset_arg,
             serpapi_key=active_serpapi_key,
             gemini_key=active_gemini_key,
-            lens_image_url=lens_url_input,
+            lens_image_url="",
             return_lens_report=True
         )
         st.session_state.extracted_ocr = ocr_res
@@ -580,6 +572,23 @@ if "extracted_ocr" in st.session_state and not demo_mode_toggle:
             icon="🚨"
         )
         st.stop()
+
+    if ocr_data.product_category == "non_healthcare":
+        st.warning(
+            "**This doesn't look like a healthcare product.** Care-Shield audits medical devices "
+            "(BP monitors, oximeters, braces, thermometers...) and over-the-counter medicines. "
+            "Please scan a medical product's packaging.",
+            icon="🩺"
+        )
+        st.stop()
+
+    if ocr_data.product_category == "otc_medicine":
+        st.info(
+            "**Over-the-counter medicine detected.** MRP, price and recall checks apply; the CDSCO "
+            "device-licence check is skipped (medicines follow the Drugs & Cosmetics Act). "
+            "Ask for the cheaper generic at a Jan Aushadhi Kendra.",
+            icon="💊"
+        )
 
     if ocr_data.product_category == "cosmetic":
         st.info(
@@ -876,6 +885,17 @@ if scorecard:
                 st.error("🚨 **Statutory Violation:** Price exceeds printed MRP (Legal Metrology Act 2009, §36).", icon="🚨")
             elif pr.mrp_audit_skipped:
                 st.info("Printed MRP absent — overcharge check skipped (no hallucination).", icon="ℹ️")
+        if (not scorecard.is_demo_replay and active_gemini_key
+                and not (scorecard.parity_result and scorecard.parity_result.benchmark_merchants)):
+            from core.gemini_fallback import gemini_price_estimate
+
+            @st.cache_data(show_spinner=False, ttl=3600)
+            def _est(q, k):
+                return gemini_price_estimate(q, k)
+
+            est = _est(f"{scorecard.ocr_result.detected_brand} {scorecard.ocr_result.product_title}", active_gemini_key)
+            if est:
+                st.info(f"🤖 **AI estimate (not live data, not used in the score):** {est}", icon="ℹ️")
         evs = [ev for ev in scorecard.evidence_list
                if any(k in ev.lower() for k in ["price","mrp","markup","metrology","gouging","overcharge"])]
         for ev in evs:
@@ -975,20 +995,6 @@ if scorecard:
         tr3.metric("Status",        trace.overall_status)
         tr4.metric("Timestamp",     trace.timestamp[:19].replace("T", " "))
 
-        with st.expander("👁️ Google Lens Telemetry", expanded=False):
-            lv = trace.lens_visibility
-            l1, l2, l3 = st.columns(3)
-            l1.metric("Lens Status",     lv.get("status", "—"))
-            l2.metric("Visual Matches",  lv.get("visual_matches_count", 0))
-            l3.metric("Knowledge Graph", lv.get("knowledge_graph_count", 0))
-            if lv.get("reason"):
-                st.info(lv.get("reason"), icon="ℹ️")
-            if lv.get("lens_title"):
-                st.markdown(f"**Resolved Title:** {lv.get('lens_title')}")
-            raw_js = lv.get("raw_json_summary", "")
-            if raw_js and raw_js != "Not provided / Not found":
-                st.code(raw_js[:400], language="json")
-
         with st.expander("📋 DAG Step Trace", expanded=False):
             for step in trace.steps:
                 s_icon = "🟢" if step.status == "SUCCESS" else ("⚪" if step.status == "SKIPPED" else "🟠")
@@ -1009,13 +1015,23 @@ if scorecard:
     # ── SerpApi engines + Jan Aushadhi + News ──
     live_ok = bool(active_serpapi_key) and not scorecard.is_demo_replay
     st.markdown('<p class="cs-section-hdr">🔎 Powered by SerpApi — Engines Used</p>', unsafe_allow_html=True)
-    engines = ["Google Shopping", "Google Search", "Google Lens", "Google Maps", "Google News"]
-    st.markdown(
-        " ".join(f'<span class="{"badge-live" if live_ok else "badge-demo"}">{e}</span>' for e in engines),
-        unsafe_allow_html=True)
-    st.caption("Live calls this audit." if live_ok else "Demo replay — live SerpApi calls are skipped.")
+    engines = ["Google Shopping", "Google Search", "Google Maps", "Google News"]
+    _warns = " ".join([
+        (scorecard.parity_result.api_warning or "") if scorecard.parity_result else "",
+        (scorecard.intel_result.api_warning or "") if scorecard.intel_result else "",
+    ])
+    used_gemini = "Gemini" in _warns and not scorecard.is_demo_replay
+    badges = " ".join(f'<span class="{"badge-live" if live_ok else "badge-demo"}">{e}</span>' for e in engines)
+    if used_gemini:
+        badges += ' <span class="badge-demo">Gemini grounded search (fallback)</span>'
+    st.markdown(badges, unsafe_allow_html=True)
+    if used_gemini:
+        st.caption("SerpApi was unavailable for part of this audit, so Care-Shield automatically switched to "
+                   "Gemini with Google Search grounding (real web sources, no invented data).")
+    else:
+        st.caption("Live calls this audit." if live_ok else "Demo replay — live SerpApi calls are skipped.")
 
-    if live_ok:
+    if live_ok or (not scorecard.is_demo_replay and active_gemini_key):
         @st.cache_data(show_spinner=False, ttl=3600)
         def _ja(lat, lng, city, key):
             return find_jan_aushadhi_kendras(lat, lng, city, key)
@@ -1028,7 +1044,10 @@ if scorecard:
                     unsafe_allow_html=True)
         st.caption("Government (PMBJP) generic-medicine stores — often 50–90% cheaper than branded retail. Ask for the generic equivalent.")
         _c = config.CITY_COORDINATES[selected_city]
-        ja = _ja(_c["lat"], _c["lng"], selected_city, active_serpapi_key)
+        ja = _ja(_c["lat"], _c["lng"], selected_city, active_serpapi_key) if active_serpapi_key else []
+        st.link_button("🗺️ Search Jan Aushadhi Kendras on Google Maps",
+                       "https://www.google.com/maps/search/Jan+Aushadhi+Kendra+near+" + urllib.parse.quote_plus(selected_city),
+                       use_container_width=True)
         if ja:
             jc = st.columns(len(ja), gap="medium")
             for i, k in enumerate(ja):
@@ -1038,7 +1057,7 @@ if scorecard:
                     <h4>🏥 {k['name']}</h4><p style="margin:2px 0;font-size:0.85rem;">{rv}</p>
                     <p class="addr">📍 {k['address']}</p></div>""", unsafe_allow_html=True)
                     st.link_button("🗺️ Get Directions", k["directions_url"], use_container_width=True)
-        else:
+        elif active_serpapi_key:
             st.info("No Jan Aushadhi Kendra found in this area right now.", icon="ℹ️")
 
         news = _news(scorecard.ocr_result.detected_brand, scorecard.ocr_result.product_title, active_serpapi_key)

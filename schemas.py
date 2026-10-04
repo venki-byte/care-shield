@@ -70,6 +70,8 @@ class PackagingOCRResult(BaseModel):
             "cosmetic": "Cosmetic / Skincare (Exempt from CDSCO MDR)",
             "otc_device": "Over-The-Counter Medical Device",
             "prescription_medicine": "Prescription Medicine (Schedule H/Rx)",
+            "otc_medicine": "Over-The-Counter Medicine (Tablet / Syrup / Ointment)",
+            "non_healthcare": "Not a healthcare product",
             "unknown": "General Healthcare / Unspecified",
         }
         return mapping.get(self.product_category, self.product_category.title())

@@ -28,10 +28,13 @@ SerpApi supplies every external fact — nothing is invented. Without a key the 
 | `google_shopping` | `core/parity_checker.py` | Online price benchmark (IQR outlier-filtered median) vs. store price and printed MRP |
 | `google` | `core/safety_intel.py` | Adversarial search for CDSCO recalls, seizures, counterfeit alerts |
 | `google` | `core/deviation_guard.py` | Canonical product-spec lookup for typo / knock-off detection |
-| `google_lens` | `core/vision_ingest.py` | Visual product matching on the packaging photo |
 | `google_maps` | `core/map_router.py` | Highly-rated nearby pharmacies when a product is flagged |
 | `google_maps` | `core/extras.py` | Nearest **Jan Aushadhi Kendras** (government generic stores, often 50–90 % cheaper) |
 | `google_news` | `core/extras.py` | Latest recall / spurious / overcharging headlines for the brand |
+
+### Automatic Gemini fallback
+
+If SerpApi is unavailable (quota exhausted, error, timeout), Care-Shield automatically switches to **Gemini with Google Search grounding** (`core/gemini_fallback.py`) for price benchmarks, recall intelligence and news — real web sources only, labelled "fallback" in the UI. If even that is unavailable, only a clearly labelled *AI estimate* is shown and it is never used in the score. (Google Lens via SerpApi is kept in the code for public image URLs; Gemini Vision is the default image reader.)
 
 ## Architecture
 
@@ -39,7 +42,7 @@ SerpApi supplies every external fact — nothing is invented. Without a key the 
  Photo / camera / text
         │  privacy ROI crop → RapidOCR (+ Gemini) → barcode → category guard
         ▼
- PackagingOCRResult (Pydantic)
+ PackagingOCRResult (Pydantic)   ← category: device / OTC medicine / cosmetic / prescription (refused) / not-healthcare (refused)
         │
    ┌────┼────────────────────────┐
    ▼    ▼                        ▼

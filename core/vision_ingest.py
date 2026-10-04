@@ -264,74 +264,70 @@ def extract_regex_metadata(text: str) -> dict:
 
 
 def classify_product_category(text: str, product_title: str = "", brand: str = "") -> str:
-    """Task T6: Classify packaging into cosmetic, otc_device, prescription_medicine, or unknown."""
+    """Task T6: Classify packaging.
+
+    Returns: prescription_medicine | cosmetic | otc_device | otc_medicine | non_healthcare | unknown
+    """
     combined = f"{brand} {product_title} {text}".lower()
 
-    # 1. Prescription Medicine Detection
+    # 1. Prescription medicine: ONLY explicit prescription markers (a plain "tablet" is not enough)
     rx_patterns = [
         r"\b(?:rx|r\.x\.)\b",
-        r"\bschedule\s*[hx1]\b",
+        r"\bschedule\s*[hx]1?\b",
         r"\bprescription\s+(?:only|drug|medicine)\b",
-        r"\b(?:tablets?|capsules?|injection|syrup|oral\s+suspension)\b",
-        r"\bas\s+directed\s+by\s+(?:the\s+)?physician\b",
-        r"\bwarning:\s*to\s+be\s+sold\s+by\s+retail\s+on\s+the\s+prescription\b",
-        r"\bantibiotic\b",
-        r"\bpharmacopoeia\b",
-        r"\b(?:i\.?p\.?|b\.?p\.?|u\.?s\.?p\.?)\s*(?:tablet|capsule|injection|syrup)?\b",
+        r"\bas\s+directed\s+by\s+(?:the\s+)?(?:physician|doctor)\b",
+        r"\bto\s+be\s+sold\s+by\s+retail\s+on\s+the\s+prescription\b",
+        r"\bantibiotics?\b",
+        r"\bnarcotic\b",
     ]
     for pat in rx_patterns:
         if re.search(pat, combined, re.IGNORECASE):
             return "prescription_medicine"
 
-    # 2. Cosmetic Detection
+    # 2. Cosmetic
     cosmetic_patterns = [
-        r"\bcosmetics?\b",
-        r"\bserums?\b",
-        r"\bface\s*wash\b",
-        r"\bmoisturi[sz]ers?\b",
-        r"\blotions?\b",
-        r"\bsunscreens?\b",
-        r"\bshampoos?\b",
-        r"\bcreams?\b",
-        r"\blipsticks?\b",
-        r"\bperfumes?\b",
-        r"\btoners?\b",
-        r"\bcleansers?\b",
-        r"\bskincare\b",
-        r"\bpigment\s*corrector\b",
-        r"\banti[- ]aging\b",
+        r"\bcosmetics?\b", r"\bserums?\b", r"\bface\s*wash\b", r"\bmoisturi[sz]ers?\b",
+        r"\blotions?\b", r"\bsunscreens?\b", r"\bshampoos?\b", r"\bcreams?\b", r"\blipsticks?\b",
+        r"\bperfumes?\b", r"\btoners?\b", r"\bcleansers?\b", r"\bskincare\b",
+        r"\bpigment\s*corrector\b", r"\banti[- ]aging\b",
     ]
     for pat in cosmetic_patterns:
         if re.search(pat, combined, re.IGNORECASE):
             return "cosmetic"
 
-    # 3. OTC Medical Device Detection
+    # 3. OTC medical device
     device_patterns = [
-        r"\boximeters?\b",
-        r"\bpulse\s*oximeter\b",
-        r"\bthermometers?\b",
-        r"\bmonitors?\b",
-        r"\bblood\s*pressure\b",
-        r"\bbp\s*monitor\b",
-        r"\bglucometers?\b",
-        r"\bknee\s*sup+ort\b",
-        r"\bknee\b",
-        r"\bhinged\b",
-        r"\bbraces?\b",
-        r"\bneoprene\b",
-        r"\borthopedic\b",
-        r"\bsplints?\b",
-        r"\bnebulizers?\b",
-        r"\btest\s*strips?\b",
-        r"\blancets?\b",
-        r"\bbandages?\b",
-        r"\bdevices?\b",
-        r"\bmedical\s*device\b",
-        r"\bstethoscopes?\b",
+        r"\boximeters?\b", r"\bthermometers?\b", r"\bmonitors?\b", r"\bblood\s*pressure\b",
+        r"\bbp\s*monitor\b", r"\bglucometers?\b", r"\bglucose\b", r"\bknee\b", r"\bhinged\b", r"\bbraces?\b",
+        r"\bneoprene\b", r"\borthopedic\b", r"\bsplints?\b", r"\bnebuli[sz]ers?\b",
+        r"\btest\s*strips?\b", r"\blancets?\b", r"\bbandages?\b", r"\bmedical\s*device\b",
+        r"\bstethoscopes?\b", r"\bwheelchair\b", r"\bwalker\b", r"\bcrutch(?:es)?\b",
+        r"\bmask\b", r"\bgloves?\b", r"\bsyringes?\b", r"\bhearing\s*aid\b", r"\bvaporizer\b",
     ]
     for pat in device_patterns:
         if re.search(pat, combined, re.IGNORECASE):
             return "otc_device"
+
+    # 4. OTC medicine (tablets/syrups/ointments without prescription markers)
+    medicine_patterns = [
+        r"\b(?:tablets?|capsules?|syrup|ointment|gel|drops|lozenges?|sachets?|suspension)\b",
+        r"\bparacetamol\b", r"\bvitamin\b", r"\bantacid\b", r"\b\d+\s*mg\b",
+        r"\bdrug\s*licen[sc]e\b", r"\bpharma\b",
+    ]
+    for pat in medicine_patterns:
+        if re.search(pat, combined, re.IGNORECASE):
+            return "otc_medicine"
+
+    # 5. Clearly not a healthcare product
+    non_health = [
+        r"\bremote\b", r"\btv\b", r"\btelevision\b", r"\bmobile\b", r"\bsmartphone\b", r"\bcharger\b",
+        r"\blaptop\b", r"\bheadphones?\b", r"\bearphones?\b", r"\bkeyboard\b", r"\bmouse\b",
+        r"\bbulb\b", r"\bbattery\b", r"\btoy\b", r"\bbottle\b", r"\bshoe\b", r"\bbag\b",
+        r"\bcable\b", r"\bspeaker\b", r"\bwatch\b", r"\bbook\b", r"\bpen\b",
+    ]
+    for pat in non_health:
+        if re.search(pat, combined, re.IGNORECASE):
+            return "non_healthcare"
 
     return "unknown"
 
@@ -434,7 +430,7 @@ def query_gemini_vision(image_bytes: bytes, api_key: str) -> Optional[dict]:
 
     prompt = """
 You are an expert Indian Medical Device Regulatory and Packaging Inspector.
-Analyze this medical device packaging image and extract the following information in strict JSON format:
+Analyze this product packaging image (it may or may not be a healthcare product) and extract the following information in strict JSON format:
 {
   "product_title": "Full commercial product name (e.g. Dr Trust Signature Series Finger Tip Pulse Oximeter)",
   "detected_brand": "Brand name (e.g. Dr Trust)",
@@ -445,6 +441,7 @@ Analyze this medical device packaging image and extract the following informatio
   "exp_date": "Expiry date or Best Before date if printed, or null",
   "barcode": "Barcode or QR code number if visible, or null",
   "active_components": "Materials or sensors or active specs, or null",
+  "product_category": "exactly one of: otc_device (BP monitor, oximeter, braces, thermometer, glucometer, mobility aids), otc_medicine (tablets/syrup/ointment WITHOUT prescription markers), prescription_medicine (ONLY if Rx / Schedule H / H1 / X / 'sold on prescription' is printed), cosmetic, non_healthcare (anything else: electronics, remotes, toys, food, etc.)",
   "raw_ocr_corpus": "Verbatim full text read from the packaging"
 }
 Output strictly valid JSON with no markdown wrapping or code fences.
@@ -747,6 +744,10 @@ def ingest_packaging_image(
     final_barcode_type = extracted_data.get("barcode_type") or barcode_type
     active_comp = extracted_data.get("active_components")
     detected_cat = classify_product_category(corpus, final_title, final_brand)
+    gem_cat = (gemini_data or {}).get("product_category")
+    if gem_cat in {"otc_device", "otc_medicine", "prescription_medicine", "cosmetic", "non_healthcare"} \
+            and detected_cat != "prescription_medicine":
+        detected_cat = gem_cat
 
     ocr_res = PackagingOCRResult(
         product_title=final_title,
