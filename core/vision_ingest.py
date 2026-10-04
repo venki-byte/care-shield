@@ -240,7 +240,10 @@ def extract_regex_metadata(text: str) -> dict:
     data["cdsco_license"] = data["cdsco_license_raw"]
 
     # 6. Brand & Product title heuristics
-    known_brands = ["Dr Trust", "Dr. Trust", "Omron", "Accu-Chek", "Tynor", "Melactis", "BPL Medical", "Hicks", "OneTouch"]
+    known_brands = ["Dr Trust", "Dr. Trust", "Omron", "Accu-Chek", "Tynor", "Melactis", "BPL Medical", "Hicks", "OneTouch",
+                    "Dolo", "Crocin", "Volini", "Moov", "Himalaya", "Dettol", "Contour", "Beurer", "Philips", "Nulife",
+                    "HealthGenie", "Morepen", "Vissco", "Flamingo", "Sunrise", "Zandu", "Cipla", "Sun Pharma", "Micro Labs",
+                    "Mankind", "Abbott", "Apollo", "Himalaya", "Johnson & Johnson", "Digene", "Eno", "Vicks"]
     for brand in known_brands:
         if re.search(r"\b" + re.escape(brand) + r"\b", text, re.IGNORECASE):
             data["detected_brand"] = brand
@@ -681,6 +684,12 @@ def ingest_packaging_image(
             first = re.split(r"(?<=[a-z0-9])\.\s|\n", raw_text_override.strip())[0].strip(" .")
             if 3 <= len(first) <= 90:
                 typed_meta["product_title"] = first
+        if not typed_meta.get("detected_brand") and typed_meta.get("product_title"):
+            first_word = typed_meta["product_title"].split()[0].strip(".,:;-")
+            generic = {"the", "new", "pack", "pulse", "digital", "blood", "knee", "tablets", "tablet", "capsules", "syrup",
+                       "medical", "paracetamol", "ointment", "glucose", "thermometer", "oximeter", "mrp", "batch"}
+            if first_word.isalpha() and first_word[0].isupper() and len(first_word) >= 3 and first_word.lower() not in generic:
+                typed_meta["detected_brand"] = first_word
         local_meta = {**{k: v for k, v in typed_meta.items() if v is not None}, **(local_meta or {})}
 
     # 5. Gemini Vision API (if key available)

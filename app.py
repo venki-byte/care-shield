@@ -415,10 +415,10 @@ with st.sidebar:
     )
     audio_lang = st.radio(
         "🔊 Audio Language",
-        options=["English (en)", "தமிழ் - Tamil (ta)"],
+        options=["English (en)", "हिन्दी - Hindi (hi)", "தமிழ் - Tamil (ta)"],
         index=0
     )
-    lang_code = "ta" if "Tamil" in audio_lang else "en"
+    lang_code = "ta" if "Tamil" in audio_lang else ("hi" if "Hindi" in audio_lang else "en")
 
     st.divider()
     st.caption("CDSCO MDR 2017 · Legal Metrology Act 2009 · Zero Hallucination")
@@ -706,14 +706,25 @@ if scorecard:
 
     is_aborted = getattr(scorecard, "is_aborted", False)
 
-    # Relevance guard: a benchmark listing must mention the product noun (last word of the title)
+    # Relevance guard: benchmark listings must (1) mention the product noun, (2) not be a cross-border
+    # re-seller, and (3) sit in a plausible price band (around the printed MRP, else the median).
     if scorecard.parity_result and not scorecard.is_demo_replay:
+        import statistics
+        _pr = scorecard.parity_result
         _noun = (scorecard.ocr_result.product_title.split() or [""])[-1].lower()
+        _ms = _pr.benchmark_merchants
         if len(_noun) >= 4:
-            scorecard.parity_result.benchmark_merchants = [
-                m for m in scorecard.parity_result.benchmark_merchants
-                if _noun[:6] in (m.extracted_title or "").lower()
-            ]
+            _ms = [m for m in _ms if _noun[:6] in (m.extracted_title or "").lower()]
+        _ms = [m for m in _ms if "ubuy" not in m.name.lower()]
+        _ref = scorecard.ocr_result.printed_mrp_inr or (statistics.median([m.price for m in _ms]) if _ms else None)
+        if _ref:
+            _ms = [m for m in _ms if 0.4 * _ref <= m.price <= 2.0 * _ref]
+        _pr.benchmark_merchants = _ms
+        if len(_ms) < 2:
+            _pr.online_median = None  # not enough validated listings -> show no median rather than a junk one
+        if len(_ms) >= 2:
+            _pr.online_median = round(statistics.median([m.price for m in _ms]), 2)
+            _pr.markup_percent = round(((_pr.scanned_purchase_price or 0) - _pr.online_median) / _pr.online_median * 100, 2)                 if _pr.scanned_purchase_price else _pr.markup_percent
 
     # ── Mode badge ──
     if scorecard.is_demo_replay:
@@ -746,6 +757,10 @@ if scorecard:
         cls, icon, disp = "cs-amber", "⚠️", f"{t_score}"
     else:
         cls, icon, disp = "cs-red",   "🚨", f"{t_score}"
+
+    if (not is_aborted and scorecard.parity_result and scorecard.parity_result.is_above_printed_mrp
+            and cls in ("cs-green", "cs-amber")):
+        cls, icon = "cs-amber", "🚨"   # a statutory violation must never look green
 
     col_badge, col_sub = st.columns([2, 3], gap="large")
 
@@ -880,7 +895,7 @@ if scorecard:
             p1, p2, p3 = st.columns(3)
             p1.metric("Store Price",   pr.scanned_price_display)
             p2.metric("Printed MRP",   scorecard.ocr_result.printed_mrp_display)
-            p3.metric("Online Median", f"{pr.online_median_display} ({pr.markup_percent:+.1f}%)")
+            p3.metric("Online Median", f"{pr.online_median_display} ({pr.markup_percent:+.1f}%)" if pr.online_median else "Not enough reliable listings")
             if pr.is_above_printed_mrp:
                 st.error("🚨 **Statutory Violation:** Price exceeds printed MRP (Legal Metrology Act 2009, §36).", icon="🚨")
             elif pr.mrp_audit_skipped:

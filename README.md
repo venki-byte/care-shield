@@ -6,7 +6,14 @@
 
 > Scan a medical product, and in seconds know whether it is **genuine**, **legally priced**, and **where to buy it cheaper** — powered by **SerpApi**.
 
-Built for the **SerpApi India Hackathon 2026**.
+Built for the **SerpApi India Hackathon 2026** · Track: **Knowledge & Public Interest** (accessibility, consumer protection, news) · also relevant to *Commerce & Market Intelligence*.
+
+![tests](https://github.com/venki-byte/care-shield/actions/workflows/tests.yml/badge.svg)
+
+<p align="center">
+  <img src="docs/scorecard.png" width="78%" alt="Audit scorecard"/>
+  <img src="docs/mobile.png" width="20%" alt="Mobile view"/>
+</p>
 
 ## The problem
 
@@ -21,7 +28,17 @@ In India, elderly patients and their families routinely buy BP monitors, oximete
 1. **Scan** a packaging photo (rear camera / gallery), or type the text.
 2. **Extract** MRP, licence, batch, brand — locally (RapidOCR) with optional Gemini Vision; privacy ROI crop first.
 3. **Audit** with live SerpApi data and a deterministic, explainable **Trust Score (0–100)**.
-4. **Act**: rupee savings, refund-the-excess prompt, cheaper sellers, Jan Aushadhi Kendras, recall news, nearby pharmacies, one-tap WhatsApp share to a family caregiver, and a spoken verdict in **English / தமிழ்**.
+4. **Act**: rupee savings, refund-the-excess prompt, cheaper sellers, Jan Aushadhi Kendras, recall news, nearby pharmacies, one-tap WhatsApp share to a family caregiver, and a spoken verdict in **English / हिन्दी / தமிழ்**.
+
+## Why it matters (for judges)
+
+| Criterion | Care-Shield |
+|---|---|
+| **Idea & insight** | A concrete, widespread harm: seniors overpaying or buying spurious medical devices. Combines *law* (Legal Metrology §36, CDSCO MDR 2017) with live market data. |
+| **Originality** | Turns a search API into a **consumer-protection tool**: price-gouging detection against the legal MRP, Jan Aushadhi generic-store routing, recall news, family WhatsApp alert. |
+| **Technical complexity** | Rotation-aware local OCR + Gemini Vision, barcode decode, privacy ROI crop, IQR statistics, deterministic scoring with N/A renormalisation, Pydantic-validated DAG with execution trace, automatic Gemini fallback, offline eval suite + CI. |
+| **Practical usefulness** | Works on a phone (rear camera), speaks the verdict in **English / हिन्दी / தமிழ்**, shows rupees saved and exactly what to do next. |
+| **Meaningful SerpApi use** | Shopping, Search, Maps (×2) and News power every external fact — remove SerpApi and the app has no prices, recalls, stores or news. |
 
 ## 🔎 How Care-Shield uses SerpApi
 
@@ -98,7 +115,7 @@ GEMINI_API_KEY = "..."
 app.py              Streamlit dashboard
 config.py           keys, weights, retry helper, city coordinates
 schemas.py          Pydantic v2 models for every stage
-audio.py            English / Tamil spoken verdict (gTTS)
+audio.py            English / Hindi / Tamil spoken verdict (gTTS)
 core/
   vision_ingest.py  ROI crop, OCR, barcode, Gemini, Lens
   deviation_guard.py  CDSCO licence + knock-off text check
@@ -114,6 +131,16 @@ fixtures/ eval/     demo replay data and offline evaluation
 ## AI disclosure
 
 This project was built with the assistance of AI coding tools (Claude Code). All logic was reviewed and tested by the author.
+
+## Screenshots
+
+| Home | SerpApi engines, Jan Aushadhi, news, pharmacies |
+|---|---|
+| <img src="docs/home.png" width="420"/> | <img src="docs/serpapi_panel.png" width="420"/> |
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Legal note
 
