@@ -1,5 +1,9 @@
 # 🛡️ Care-Shield — Medical Device Guardian
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://care-shield-awdfuejzzvdctwjjtkgeup.streamlit.app/)
+
+> 🚀 **Live app:** **[https://care-shield-awdfuejzzvdctwjjtkgeup.streamlit.app/](https://care-shield-awdfuejzzvdctwjjtkgeup.streamlit.app/)**
+
 > Scan a medical product, and in seconds know whether it is **genuine**, **legally priced**, and **where to buy it cheaper** — powered by **SerpApi**.
 
 Built for the **SerpApi India Hackathon 2026**.
